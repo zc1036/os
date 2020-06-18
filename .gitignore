@@ -1,0 +1,5 @@
+*.o
+*~
+src/isodir
+*.bin
+*.iso

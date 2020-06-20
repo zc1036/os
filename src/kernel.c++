@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#include <kprint.h++>
  
 /* Check if the compiler thinks you are targeting the wrong operating system. */
 #if !defined(__i386__)
@@ -36,14 +38,6 @@ static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg)
 static inline uint16_t vga_entry(unsigned char uc, uint8_t color) 
 {
 	return (uint16_t) uc | (uint16_t) color << 8;
-}
- 
-size_t strlen(const char* str) 
-{
-	size_t len = 0;
-	while (str[len])
-		len++;
-	return len;
 }
  
 static const size_t VGA_WIDTH = 80;
@@ -99,12 +93,45 @@ void terminal_writestring(const char* data)
 {
 	terminal_write(data, strlen(data));
 }
+
+extern "C" uint64_t __udivmoddi4(uint64_t num, uint64_t den, uint64_t *rem_p)
+{
+  uint64_t quot = 0, qbit = 1;
+ 
+  if ( den == 0 ) {
+    return 1/((unsigned)den); /* Intentional divide by zero, without
+				 triggering a compiler warning which
+				 would abort the build */
+  }
+ 
+  /* Left-justify denominator and count shift */
+  while ( (int64_t)den >= 0 ) {
+    den <<= 1;
+    qbit <<= 1;
+  }
+ 
+  while ( qbit ) {
+    if ( den <= num ) {
+      num -= den;
+      quot += qbit;
+    }
+    den >>= 1;
+    qbit >>= 1;
+  }
+ 
+  if ( rem_p )
+    *rem_p = num;
+ 
+  return quot;
+}
+
+extern "C" void _putchar(char) { }
  
 extern "C" void kernel_main(void) 
 {
 	/* Initialize terminal interface */
 	terminal_initialize();
- 
+
 	/* Newline support is left as an exercise. */
-	terminal_writestring("Hello, kernel World!\n");
+	kprint("hello hex world! 0x", khex{1234}, '!');
 }

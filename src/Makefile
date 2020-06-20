@@ -1,6 +1,10 @@
 
 ISO := os.iso
-OBJS := kernel.o bootstrap.o
+OBJS := kernel.o bootstrap.o string.o printf.o
+
+INCLUDEDIRS := -Iinclude -Iinclude/libc++ -Iextern/printf
+
+vpath %.c extern/printf
 
 $(ISO): kernel.bin
 	mkdir -p isodir/boot/grub
@@ -13,11 +17,13 @@ kernel.bin: $(OBJS)
 	grub-file --is-x86-multiboot kernel.bin
 
 %.o: %.c++
-	$(CXX) -m32 -c $< -o $@ -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti
+	$(CXX) -std=c++17 $(INCLUDEDIRS) -m32 -c $< -o $@ -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti
+
+%.o: %.c
+	$(CC) $(INCLUDEDIRS) -m32 -c $< -o $@ -ffreestanding -O2 -Wall -Wextra
 
 %.o: %.s
 	$(CC) -c -masm=intel -m32 $< -o $@
-
 
 .PHONY: clean run
 

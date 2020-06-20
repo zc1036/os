@@ -3,3 +3,7 @@
 src/isodir
 *.bin
 *.iso
+\#*\#
+GTAGS
+GRTAGS
+GPATH

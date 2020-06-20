@@ -1,6 +1,6 @@
 
 ISO := os.iso
-OBJS := kernel.o bootstrap.o string.o printf.o
+OBJS := kernel.o bootstrap.o string.o printf.o utils.o
 
 INCLUDEDIRS := -Iinclude -Iinclude/libc++ -Iextern/printf
 

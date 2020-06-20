@@ -139,11 +139,36 @@ extern "C" void kernel_main(void)
 	terminal_initialize();
 
     if (is_cpuid_supported()) {
-        kprint("CPUID is supported\n");
+        eabcdx_registers max_leaf_regs = {
+            .eax = cpuid_query_max_leaf
+        };
+
+        cpuid(&max_leaf_regs);
+
+        // Check EAX for the max leaf value we can send to the CPUID
+        // instruction, to make sure the CPU supports the "extended processor
+        // info and feature bits" query
+        if (max_leaf_regs.eax >= cpuid_query_extended_processor_info_and_feature_bits) {
+            kprint("CPUID supports extended proc info (0x", khex{max_leaf_regs.eax}, ")\n");
+
+            eabcdx_registers proc_features_regs = {
+                .eax = cpuid_query_extended_processor_info_and_feature_bits
+            };
+
+            cpuid(&proc_features_regs);
+
+            // Check EDX for the long mode support flag
+            if (proc_features_regs.edx & cpuid_proc_info_long_mode) {
+                kprint("CPU does support long mode\n");
+            } else {
+                kprint("CPU does NOT support long mode (0x", khex{proc_features_regs.edx}, ")\n");
+            }
+        } else {
+            kprint("CPUID does NOT support extended proc info and feature bits (0x",
+                   khex{max_leaf_regs.eax},
+                   ")\n");
+        }
     } else {
         kprint("CPUID is NOT supported\n");
     }
-
-	/* Newline support is left as an exercise. */
-	kprint("hello hex world! 0x", khex{1234}, '!');
 }

@@ -20,3 +20,25 @@ is_cpuid_supported:
     mov eax, 1
 is_cpuid_supported_done:
     ret
+
+
+    .global cpuid
+
+cpuid:
+    push ebx                # Preserve ebx
+    push esi                # Preserve esi
+
+    mov esi, [esp+12]      # Put first argument (exx_registers*) in esi
+    mov eax, [esi]          # Put eax value from struct in eax register
+    mov ebx, [esi+4]        # same for ebx
+    mov ecx, [esi+8]        # ecx
+    mov edx, [esi+12]       # edx
+    cpuid                   # call cpuid instruction using parameters
+    mov [esi], eax          # Load up resulting e[abcd]x registers into structure
+    mov [esi+4], ebx
+    mov [esi+8], ecx
+    mov [esi+12], edx
+
+    pop esi                 # Restore registers
+    pop ebx
+    ret

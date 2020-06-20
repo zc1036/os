@@ -4,6 +4,10 @@ OBJS := kernel.o bootstrap.o string.o printf.o utils.o
 
 INCLUDEDIRS := -Iinclude -Iinclude/libc++ -Iextern/printf
 
+ifdef QEMU_GDB
+	QEMU_DEBUG_FLAGS += -S -s
+endif
+
 vpath %.c extern/printf
 
 $(ISO): kernel.bin
@@ -28,7 +32,7 @@ kernel.bin: $(OBJS)
 .PHONY: clean run
 
 run: $(ISO)
-	qemu-system-i386 -cdrom os.iso
+	qemu-system-x86_64 $(QEMU_DEBUG_FLAGS) -cdrom os.iso
 
 clean:
 	rm -f $(OBJS) kernel.bin $(ISO)

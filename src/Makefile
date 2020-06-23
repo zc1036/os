@@ -1,11 +1,14 @@
 
 ISO := os.iso
-OBJS := kernel.o bootstrap.o string.o printf.o utils.o
+OBJS := kernel.o bootstrap.o string.o printf.o utils.o serial.o
+
+QEMU := qemu-system-x86_64
+QEMU_FLAGS += -serial mon:stdio
 
 INCLUDEDIRS := -Iinclude -Iinclude/libc++ -Iextern/printf
 
 ifdef QEMU_GDB
-	QEMU_DEBUG_FLAGS += -S -s
+	QEMU_FLAGS += -S -s
 endif
 
 vpath %.c extern/printf
@@ -21,10 +24,10 @@ kernel.bin: $(OBJS)
 	grub-file --is-x86-multiboot kernel.bin
 
 %.o: %.c++
-	$(CXX) -std=c++17 $(INCLUDEDIRS) -m32 -c $< -o $@ -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti
+	$(CXX) -std=c++17 $(INCLUDEDIRS) -masm=intel -m32 -c $< -o $@ -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti
 
 %.o: %.c
-	$(CC) $(INCLUDEDIRS) -m32 -c $< -o $@ -ffreestanding -O2 -Wall -Wextra
+	$(CC) $(INCLUDEDIRS) -masm=intel -m32 -c $< -o $@ -ffreestanding -O2 -Wall -Wextra
 
 %.o: %.s
 	$(CC) -c -masm=intel -m32 $< -o $@
@@ -32,7 +35,10 @@ kernel.bin: $(OBJS)
 .PHONY: clean run
 
 run: $(ISO)
-	qemu-system-x86_64 $(QEMU_DEBUG_FLAGS) -cdrom os.iso
+	$(QEMU) $(QEMU_FLAGS) -cdrom $(ISO)
+
+run-kernel: kernel.bin
+	$(QEMU) $(QEMU_FLAGS) -kernel kernel.bin
 
 clean:
 	rm -f $(OBJS) kernel.bin $(ISO)

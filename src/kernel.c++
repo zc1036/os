@@ -5,6 +5,7 @@
 
 #include <flags.h++>
 #include <kprint.h++>
+#include <serial.h>
 
 /* Check if the compiler thinks you are targeting the wrong operating system. */
 #if !defined(__i386__)
@@ -93,6 +94,8 @@ void terminal_write(const char* data, size_t size)
 {
 	for (size_t i = 0; i < size; i++)
 		terminal_putchar(data[i]);
+   if (serial_enabled)
+      serial_write(data, size);
 }
 
 void terminal_writestring(const char* data)
@@ -135,6 +138,11 @@ extern "C" void _putchar(char) { }
 
 extern "C" void kernel_main(void)
 {
+   /* Initialize serial */
+   serial_initialize();
+   serial_enabled = 1;
+   serial_writestring("Serial Initialized\n");
+
 	/* Initialize terminal interface */
 	terminal_initialize();
 

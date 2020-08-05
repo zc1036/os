@@ -6,6 +6,8 @@
 #include <flags.h++>
 #include <kprint.h++>
 #include <serial.h>
+#include <a20.h>
+#include <long_mode.h>
 
 /* Check if the compiler thinks you are targeting the wrong operating system. */
 #if !defined(__i386__)
@@ -179,4 +181,11 @@ extern "C" void kernel_main(void)
     } else {
         kprint("CPUID is NOT supported\n");
     }
+    if(is_a20_enabled())
+    {
+       kprint("a20 line is enabled\nGood to proceed");
+    }
+    set_paging();
+    enable_long_mode();
+    enable_paging();
 }

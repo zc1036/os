@@ -27,5 +27,4 @@ enum cpuid_proc_info_flags {
   updates the structure argument in-place with the registers' values post-cpuid.
  */
 extern "C" void cpuid(eabcdx_registers* registers);
-
 #endif

@@ -1,6 +1,6 @@
 
 ISO := os.iso
-OBJS := kernel.o bootstrap.o string.o printf.o utils.o serial.o
+OBJS := kernel.o bootstrap.o paging.o string.o printf.o utils.o serial.o a20.o
 
 QEMU := qemu-system-x86_64
 QEMU_FLAGS += -serial mon:stdio

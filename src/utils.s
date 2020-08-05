@@ -42,3 +42,16 @@ cpuid:
     pop esi                 # Restore registers
     pop ebx
     ret
+
+   .global enable_long_mode
+
+enable_long_mode:
+   push ecx
+   
+   mov ecx, 0xC0000080
+   rdmsr
+   or eax, 1 << 8
+   wrmsr
+
+   pop ecx
+   ret
